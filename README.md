@@ -2,13 +2,13 @@
 
 在 OKX 永续合约交易页设定一个资金目标，直接看离目标还有多远。复利连赢模式会把当前资金换算成等效进度，显示按每笔目标收益率还差几笔。面板也支持按百分比或固定金额设定增长目标。
 
-**[下载 v2.2.14 安装 ZIP](https://github.com/mxjl620/okx-trade-goal/releases/download/v2.2.14/okx-trade-goal-2.2.14-chrome-store.zip)** · Chrome 130 或更新版本 · [版本说明](https://github.com/mxjl620/okx-trade-goal/releases/tag/v2.2.14) · [隐私政策](PRIVACY.md)
+**[下载 v2.2.15 安装 ZIP](https://github.com/mxjl620/okx-trade-goal/releases/download/v2.2.15/okx-trade-goal-2.2.15.zip)** · Chrome 130 或更新版本 · [版本说明](https://github.com/mxjl620/okx-trade-goal/releases/tag/v2.2.15) · [隐私政策](PRIVACY.md)
 
 ![交易目标浮层及复利计划，使用模拟交易数据](docs/compound-plan.png)
 
 ## 安装与使用
 
-1. 从 [GitHub Release](https://github.com/mxjl620/okx-trade-goal/releases/tag/v2.2.14) 下载扩展安装 ZIP 并解压。
+1. 从 [GitHub Release](https://github.com/mxjl620/okx-trade-goal/releases/tag/v2.2.15) 下载扩展安装 ZIP 并解压。
 2. 在 Chrome 打开 `chrome://extensions`，开启「开发者模式」。点「加载已解压的扩展程序」，选择包含 `manifest.json` 的文件夹。
 3. 登录 OKX，打开或刷新永续合约交易页。阅读首用授权说明，选择「同意并启用」，再打开下方的「当前仓位」。将交易类型和保证金模式设为全部，取消「当前交易品种」和「按币种分组」，让扩展看到完整仓位。
 4. 在「目标设置」里填写起始资金和目标，点「保存目标」。要更新平仓回撤，打开 OKX 的「历史仓位」并加载本轮相关记录。
@@ -25,7 +25,7 @@
 | 增长百分比 | 起始资金 × (1 + 目标涨幅) |
 | 增长金额 | 起始资金 + 目标增加金额 |
 
-复利计划每页列 10 笔，逐笔展示交易前与达标后的计划资金。例如以 1,000 USDT 起步、每笔目标 5%，第 1 笔是 1,000.00 → 1,050.00 USDT。边栏会高亮当前所在的一笔。等效笔数由资金变化换算，实际连赢次数要查已平仓记录。
+复利计划每页列 10 笔，逐笔展示交易前与达标后的计划资金，金额固定显示两位小数。例如以 1,000 USDT 起步、每笔目标 5%，第 1 笔是 1,000.00 → 1,050.00 USDT。边栏会高亮当前所在的一笔。等效笔数由资金变化换算，实际连赢次数要查已平仓记录。
 
 复利边栏中的「单笔风险测算」可按单笔盈利目标与假设胜率计算复利盈亏平衡线，也可按回撤预算和假设连亏笔数计算单笔亏损比例上限。两项结果以每笔交易前的账户净值为基数，使用扣费后的盈亏。测算输入只保留在当前页面。
 
@@ -59,7 +59,7 @@
 - 直接用 Chrome 加载包含 `manifest.json` 的仓库根目录，无需构建。
 - 运行 `node --test tests/*.test.cjs` 测试目标、风险与回撤计算。
 - 在 Chrome 打开 `tests/okx-history.html`，用模拟页面验证平仓记录读取。
-- 运行 `python3 scripts/package.py ./okx-trade-goal-2.2.14.zip` 生成可解压加载的扩展安装包。
+- 运行 `python3 scripts/package.py ./okx-trade-goal-2.2.15.zip` 生成可解压加载的扩展安装包。
 
 ## 打赏支持
 

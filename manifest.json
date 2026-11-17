@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "交易目标 · OKX 实时进度",
-  "version": "2.2.14",
+  "version": "2.2.15",
   "minimum_chrome_version": "130",
   "description": "在 OKX 永续交易页跟踪资金目标，查看实时进度、复利计划与逐笔平仓回撤。",
   "permissions": ["storage"],

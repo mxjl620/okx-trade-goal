@@ -14,7 +14,7 @@
   });
   const dates = new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
   const progressNumbers = new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 1 });
-  const compactProgressNumbers = new Intl.NumberFormat('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const twoDecimalNumbers = new Intl.NumberFormat('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const schedulePageSize = 10;
   const drawdownMessage = '保持冷静，避免情绪化交易';
   const drawdownEnglish = 'STAY CALM. DON’T REVENGE TRADE.';
@@ -979,8 +979,8 @@
         return element('tr', row,
           element('th', { scope: 'row' }, '第 ' + numbers.format(win) + ' 笔',
             element('span', { class: 'schedule-win-state', hidden: '' })),
-          element('td', {}, formatNumber(fromCapital, true)),
-          element('td', {}, formatNumber(capital, true)));
+          element('td', {}, twoDecimalNumbers.format(fromCapital)),
+          element('td', {}, twoDecimalNumbers.format(capital)));
       });
       scheduleRows.replaceChildren(...rendered);
       byId('schedule-scroll').scrollTop = 0;
@@ -1326,7 +1326,7 @@
       const percentage = percent === null ? '—' :
         (!progress.achieved && percent > 99.9 ? '>99.9%' : progressNumbers.format(percent) + '%');
       const compactPercentage = percent === null ? '—' :
-        compactProgressNumbers.format(progress.achieved ? percent : Math.min(percent, 99.99)) + '%';
+        twoDecimalNumbers.format(progress.achieved ? percent : Math.min(percent, 99.99)) + '%';
       const track = byId('track');
       put('progress-percent', percentage);
       put('progress-state', progress?.achieved ? '已达标' : configured ? goalModes[goalMode].title : '先设置目标');
