@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>OKX closed-position reader fixture</title>
+<main id="fixture"></main>
+<pre id="result">RUNNING</pre>
+<script src="../src/okx-history.js"></script>
+<script>
+  const fixture = document.getElementById('fixture');
+  const result = document.getElementById('result');
+  const captions = ['交易品种', '仓位状态', '开仓均价', '平仓均价', '已实现收益', '已实现收益率', '最大持仓量', '已平仓量', '开仓时间', '平仓时间', '操作'];
+  const opening = '2026/11/17 14:10:00';
+  const closing = '2026/11/17 14:20:00';
+
+  function row({ instrument = 'HUMAUSDT 永续', mode = '逐仓', status = '全部平仓', pnl = '−12.34 USDT', openedAt = opening, closedAt = closing } = {}) {
+    const cells = [
+      `<div><span class="pos-info_inst-id__MXt1M">${instrument}</span><span>5x</span></div>`,
+      `<button>${status}</button>`, '0.123', '0.120',
+      `<div><span class="original-field_item-content__Q61es">${pnl}</span></div>`, '-1.0%',
+      `<div>100 HUMA</div><div>${mode}</div>`, '100 HUMA', openedAt, closedAt, '<button>分享</button>',
+    ];
+    return `<tr class="okui-table-row">${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+  }
+
+  function render(rows, { split = false, header = captions, attrs = '' } = {}) {
+    const head = `<thead><tr>${header.map(title => `<th><div><span>${title}</span></div></th>`).join('')}</tr></thead>`;
+    const body = `<tbody>${rows.join('')}</tbody>`;
+    fixture.innerHTML = `<div class="history-position-box" ${attrs}><div>${split
+      ? `<table>${head}</table><table>${body}</table>` : `<table>${head}${body}</table>`}</div></div>`;
+  }
+
+  function assert(value, message) { if (!value) throw new Error(message); }
+
+  try {
+    assert(GoalOkxHistory.read(document) === undefined, 'absence should not look like an empty report');
+    render([row()], { attrs: 'hidden' });
+    assert(GoalOkxHistory.read(document) === undefined, 'hidden history should not be read');
+    render([
+      row({ pnl: '+1,500.60 USDC', mode: '全仓', openedAt: '2026-11-17T06:10:00+00:00', closedAt: '2026-11-17T06:25:00+00:00' }),
+      row(),
+      row({ status: '部分平仓', pnl: '+89.00 USDT', closedAt: '--' }),
+    ], { split: true });
+    const { records, skipped, issue } = GoalOkxHistory.read(document);
+    const local = records.find(record => record.currency === 'USDT');
+    const offset = records.find(record => record.currency === 'USDC');
+    assert(records.length === 2 && skipped === 1 && !issue, 'record both fully closed rows only');
+    assert(local.netPnl === -12.34 && local.closedAt === new Date(2026, 10, 17, 14, 20).getTime(), 'decode browser-local time');
+    assert(offset.netPnl === 1500.6 && offset.closedAt === Date.UTC(2026, 10, 17, 6, 25), 'decode explicit offset and grouped net PnL');
+
+    render([row(), row({ pnl: '+2.34 USDT' }), row({ status: '自动减仓', closedAt: '--' }), row({ pnl: '-5%' }), row({ closedAt: '2026/02/30 14:20:00' })]);
+    const unclear = GoalOkxHistory.read(document);
+    assert(unclear.records.length === 0 && unclear.skipped === 5 && unclear.issue, 'ambiguous identity and unsupported fields are skipped');
+    render([row({ pnl: '0 USDT', closedAt: '2026-11-17T06:25:00.123Z', openedAt: '2026-11-17T14:10:00+08:00' })]);
+    const [zero] = GoalOkxHistory.read(document).records;
+    assert(zero.netPnl === 0 && zero.closedAt === Date.UTC(2026, 10, 17, 6, 25, 0, 123), 'zero is a real net PnL');
+    render([row({ instrument: 'HUMAUSDT Perpetual Futures', status: 'Fully closed' })]);
+    assert(GoalOkxHistory.read(document).records[0].id === local.id, 'instrument identity is stable across locale aliases');
+    render([row(), row({ pnl: '+42.00 USDC', status: '自动减仓' })]);
+    const mixedCurrencies = GoalOkxHistory.read(document).records;
+    assert(mixedCurrencies.length === 2 && mixedCurrencies[0].id !== mixedCurrencies[1].id, 'currency distinguishes same-second identities; complete ADL may have a close time');
+    render([row({ status: '全部强平' })]);
+    assert(GoalOkxHistory.read(document).records.length === 1, 'accept an explicit complete liquidation');
+    render([row()], { header: captions.map(title => title === '已实现收益' ? '收益额' : title) });
+    const badHeader = GoalOkxHistory.read(document);
+    assert(badHeader.records.length === 0 && badHeader.issue, 'do not substitute an unverified gross PnL heading');
+    fixture.innerHTML = '<div class="history-position-box"><p>暂无记录</p></div>';
+    assert(GoalOkxHistory.read(document).records.length === 0 && !GoalOkxHistory.read(document).issue, 'explicit empty history is valid');
+    result.textContent = 'PASS';
+  } catch (error) {
+    result.textContent = 'FAIL: ' + error.stack;
+  }
+</script>
